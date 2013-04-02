@@ -2,11 +2,14 @@ int datapin  = 11; // DI
 int latchpin = 10; // LI
 int enablepin = 9; // EI
 int clockpin = 8; // CI
+
 unsigned long SB_CommandPacket;
 int SB_CommandMode;
 int SB_BlueCommand;
 int SB_RedCommand;
 int SB_GreenCommand;
+
+int inByte = 0;
 
 void setup() {
    pinMode(datapin, OUTPUT);
@@ -16,6 +19,35 @@ void setup() {
 
    digitalWrite(latchpin, LOW);
    digitalWrite(enablepin, LOW);
+   
+   Serial.begin(9600);
+   
+   SB_CommandMode = B01; // Write to current control registers
+   SB_RedCommand = 127; // Full current
+   SB_GreenCommand = 127; // Full current
+   SB_BlueCommand = 127; // Full current
+   SB_SendPacket();
+}
+
+void loop() {
+  switch(readSerial()) {
+    case 49:
+      alarm();
+      break;
+    case 50:
+      notification();
+      break;
+    default:
+      idle();
+  } 
+}
+
+
+int readSerial() {
+  if(Serial.available() > 0) {
+    inByte = Serial.read();
+  }
+  return inByte;
 }
 
 void SB_SendPacket() {
@@ -35,36 +67,77 @@ void SB_SendPacket() {
    digitalWrite(latchpin,LOW);
 }
 
-void loop() {
 
-   SB_CommandMode = B01; // Write to current control registers
-   SB_RedCommand = 127; // Full current
-   SB_GreenCommand = 127; // Full current
-   SB_BlueCommand = 127; // Full current
-   SB_SendPacket();
   
-  for(int i = 350; i < 1023; i++){
-   SB_CommandMode = B00; // Write to PWM control registers
-   SB_RedCommand = 0; // Maximum red
-   SB_GreenCommand = 0; // Minimum green
-   SB_BlueCommand = i; // Minimum blue
+  
+  
+  
+void idle() {
+  for(int i = 500; i < 701; i++){
+   SB_CommandMode = B00;
+   SB_RedCommand = 0;
+   SB_GreenCommand = i;
+   SB_BlueCommand = 0;
    SB_SendPacket();
-
-   //delay(1);
+   
+   delay(10);
   }
   
-  delay(1000);
+  delay(100);
   
-  for(int i = 1023; i >= 350; i--){
-   SB_CommandMode = B00; // Write to PWM control registers
-   SB_RedCommand = 0; // Maximum red
-   SB_GreenCommand = 0; // Minimum green
-   SB_BlueCommand = i; // Minimum blue
+  for(int i = 700; i > 499; i--){
+   SB_CommandMode = B00;
+   SB_RedCommand = 0;
+   SB_GreenCommand = i;
+   SB_BlueCommand = 0;
    SB_SendPacket();
+   
+   delay(10);
+  }
 
-   //delay(1);
+  delay(200);
+}
+
+void alarm() {
+  for(int i = 750; i < 1023; i++){
+   SB_CommandMode = B00;
+   SB_RedCommand = i;
+   SB_GreenCommand = 0;
+   SB_BlueCommand = 0;
+   SB_SendPacket();
   }
   
+  delay(200);
+  
+  for(int i = 1023; i >= 0; i--){
+   SB_CommandMode = B00;
+   SB_RedCommand = i;
+   SB_GreenCommand = 0;
+   SB_BlueCommand = 0;
+   SB_SendPacket();
+  }
+
   delay(1000);
 }
 
+void notification() {
+  for(int i = 0; i < 1023; i++){
+   SB_CommandMode = B00;
+   SB_RedCommand = i;
+   SB_GreenCommand = i;
+   SB_BlueCommand = 0;
+   SB_SendPacket();
+  }
+  
+  delay(500);
+  
+  for(int i = 1023; i >= 0; i--){
+   SB_CommandMode = B00;
+   SB_RedCommand = i;
+   SB_GreenCommand = i;
+   SB_BlueCommand = 0;
+   SB_SendPacket();
+  }
+
+  delay(2000);
+}
