@@ -1,7 +1,7 @@
-int datapin  = 11; // DI
-int latchpin = 10; // LI
-int enablepin = 9; // EI
-int clockpin = 8; // CI
+const int datapin  = 11; // DI
+const int latchpin = 10; // LI
+const int enablepin = 9; // EI
+const int clockpin = 8; // CI
 
 unsigned long SB_CommandPacket;
 int SB_CommandMode;
