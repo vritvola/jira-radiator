@@ -121,21 +121,21 @@ void alarm() {
 }
 
 void notification() {
-  for(int i = 0; i < 1023; i++){
+  for(int i = 200; i < 1023; i++){
    SB_CommandMode = B00;
-   SB_RedCommand = i;
-   SB_GreenCommand = i;
-   SB_BlueCommand = 0;
+   SB_RedCommand = 0;
+   SB_GreenCommand = 0;
+   SB_BlueCommand = i;
    SB_SendPacket();
   }
   
   delay(500);
   
-  for(int i = 1023; i >= 0; i--){
+  for(int i = 1023; i >= 199; i--){
    SB_CommandMode = B00;
-   SB_RedCommand = i;
-   SB_GreenCommand = i;
-   SB_BlueCommand = 0;
+   SB_RedCommand = 0;
+   SB_GreenCommand = 0;
+   SB_BlueCommand = i;
    SB_SendPacket();
   }
 
